@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>El Tesoro del Muki</title>
+    <style>
+        table { border-collapse: collapse; margin: auto; }
+        td {
+            width: 40px; height: 40px; text-align: center; vertical-align: middle;
+            border: 1px solid #000; font-size: 20px;
+        }
+        form { display: inline; }
+    </style>
+</head>
+<body>
+<h2 style="text-align:center">Juego del Muki</h2>
+
+<div th:if="${perdio}">
+    <h3 style="color:red;text-align:center">💥 ¡Perdiste! 💥</h3>
+    <form th:action="@{/buscaminas/reiniciar}" method="post">
+        <button>Reiniciar</button>
+    </form>
+</div>
+
+<div th:if="${gano}">
+    <h3 style="color:green;text-align:center">🎉 ¡Ganaste! 🎉</h3>
+    <form th:action="@{/buscaminas/reiniciar}" method="post">
+        <button>Jugar de nuevo</button>
+    </form>
+</div>
+
+<table>
+    <tr th:each="fila, fi : ${tablero}">
+        <td th:each="celda, ci : ${fila}">
+            <span th:if="${celda != null}" th:text="${celda}"></span>
+            <form th:if="${celda == null and !perdio and !gano}"
+                  th:action="@{/buscaminas/jugar}" method="post">
+                <input type="hidden" name="fila" th:value="${fi.index}" />
+                <input type="hidden" name="columna" th:value="${ci.index}" />
+                <button type="submit">❓</button>
+            </form>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
