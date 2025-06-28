@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Tesoro del Muki - Buscaminas</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c1810, #5d3e23);
+            color: #f4e4bc;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #cd853f;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #8b4513;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #cd853f;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 35px);
+            grid-template-rows: repeat(10, 35px);
+            gap: 2px;
+            margin: 10px 0;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(145deg, #8b7355, #6b5b3f);
+            border: 2px solid #5d4037;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: inset 2px 2px 4px rgba(255,255,255,0.1), inset -2px -2px 4px rgba(0,0,0,0.3);
+        }
+
+        .cell:hover {
+            background: linear-gradient(145deg, #a0845a, #7a6b4f);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .cell.revealed {
+            background: linear-gradient(145deg, #f4e4bc, #e0d4a8);
+            color: #2c1810;
+            border-color: #cd853f;
+            cursor: default;
+        }
+
+        .cell.revealed:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .cell.bomb {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+            color: white;
+            animation: explode 0.5s ease-out;
+        }
+
+        .cell.empty {
+            background: linear-gradient(145deg, #90ee90, #7ccd7c);
+        }
+
+        .cell.number-1 { color: #0000ff; }
+        .cell.number-2 { color: #008000; }
+        .cell.number-3 { color: #ff0000; }
+        .cell.number-4 { color: #000080; }
+        .cell.number-5 { color: #800000; }
+        .cell.number-6 { color: #008080; }
+        .cell.number-7 { color: #000000; }
+        .cell.number-8 { color: #808080; }
+
+        @keyframes explode {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); background: #ff6666; }
+            100% { transform: scale(1); }
+        }
+
+        .input-section {
+            margin: 20px 0;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #8b4513;
+        }
+
+        .coordinate-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            height: 35px;
+            background: #2c1810;
+            border: 2px solid #8b4513;
+            color: #ffd700;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        button {
+            background: linear-gradient(145deg, #8b4513, #6b3410);
+            color: #ffd700;
+            border: 2px solid #5d2f0e;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        button:hover {
+            background: linear-gradient(145deg, #a0521a, #7d3e15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status-message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .status-playing {
+            background: linear-gradient(145deg, #2e5984, #1e3a5f);
+            border: 2px solid #4682b4;
+        }
+
+        .status-won {
+            background: linear-gradient(145deg, #228b22, #006400);
+            border: 2px solid #32cd32;
+            animation: victory 1s ease-in-out;
+        }
+
+        .status-lost {
+            background: linear-gradient(145deg, #dc143c, #8b0000);
+            border: 2px solid #ff6347;
+            animation: defeat 0.5s ease-out;
+        }
+
+        @keyframes victory {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes defeat {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-square {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .coordinates-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            border: 1px solid #8b4513;
+        }
+    </style>
+</head>
+<body>
+<div class="coordinates-display">
+    <div>Filas: 1-10 (arriba-abajo)</div>
+    <div>Columnas: 1-10 (izq-der)</div>
+</div>
+
+<div class="container">
+    <h1>🏔️ El Tesoro del Muki 💎</h1>
+    <div class="subtitle">El duende Robertico protege las minas de Minadura</div>
+
+    <div class="game-info">
+        <div class="info-item">
+            <div class="info-label">INTENTOS RESTANTES</div>
+            <div class="info-value" id="attemptsLeft">2</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">CELDAS REVELADAS</div>
+            <div class="info-value" id="cellsRevealed">0</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">TOTAL SEGURAS</div>
+            <div class="info-value" id="totalSafe">90</div>
+        </div>
+    </div>
+
+    <div class="status-message status-playing" id="statusMessage">
+        🎮 ¡Encuentra el cobre sin activar las bombas del muki! Tienes 2 intentos de fallo.
+    </div>
+
+    <div class="grid-container">
+        <div class="grid" id="gameGrid"></div>
+    </div>
+
+    <div class="input-section">
+        <h3>🎯 Coordenadas de Exploración</h3>
+        <div class="coordinate-input">
+            <label>Fila:</label>
+            <input type="number" id="rowInput" min="1" max="10" value="1">
+            <label>Columna:</label>
+            <input type="number" id="colInput" min="1" max="10" value="1">
+            <button onclick="makeMove()" id="exploreBtn">⛏️ Explorar Mina</button>
+        </div>
+        <div style="margin-top: 15px;">
+            <button onclick="resetGame()" id="resetBtn">🔄 Nuevo Juego</button>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-square" style="background: linear-gradient(145deg, #8b7355, #6b5b3f);"></div>
+            <span>Sin explorar</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-square" style="background: linear-gradient(145deg, #90ee90, #7ccd7c);"></div>
+            <span>Segura</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-square" style="background: linear-gradient(145deg, #f4e4bc, #e0d4a8);"></div>
+            <span>Con número</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-square" style="background: linear-gradient(145deg, #ff4444, #cc0000);"></div>
+            <span>💣 Bomba</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables del juego
+    let gameState = {
+        grid: [],
+        revealed: [],
+        bombs: [],
+        attemptsLeft: 2,
+        cellsRevealed: 0,
+        gameStatus: 'playing', // 'playing', 'won', 'lost'
+        moves: []
+    };
+
+    // Configuración del juego
+    const GRID_SIZE = 10;
+    const TOTAL_BOMBS = 10;
+    const TOTAL_SAFE_CELLS = GRID_SIZE * GRID_SIZE - TOTAL_BOMBS;
+
+    // Inicializar el juego
+    function initializeGame() {
+        // Crear grilla vacía
+        gameState.grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
+        gameState.revealed = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(false));
+        gameState.bombs = [];
+        gameState.attemptsLeft = 2;
+        gameState.cellsRevealed = 0;
+        gameState.gameStatus = 'playing';
+        gameState.moves = [];
+
+        // Generar bombas aleatoriamente
+        generateBombs();
+
+        // Calcular números
+        calculateNumbers();
+
+        // Crear la interfaz
+        createGameGrid();
+        updateUI();
+    }
+
+    function generateBombs() {
+        const positions = [];
+
+        // Generar todas las posiciones posibles
+        for (let i = 0; i < GRID_SIZE; i++) {
+            for (let j = 0; j < GRID_SIZE; j++) {
+                positions.push([i, j]);
+            }
+        }
+
+        // Mezclar y tomar las primeras TOTAL_BOMBS posiciones
+        for (let i = positions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [positions[i], positions[j]] = [positions[j], positions[i]];
+        }
+
+        for (let i = 0; i < TOTAL_BOMBS; i++) {
+            const [row, col] = positions[i];
+            gameState.grid[row][col] = -1; // -1 representa una bomba
+            gameState.bombs.push([row, col]);
+        }
+    }
+
+    function calculateNumbers() {
+        for (let i = 0; i < GRID_SIZE; i++) {
+            for (let j = 0; j < GRID_SIZE; j++) {
+                if (gameState.grid[i][j] !== -1) {
+                    let count = 0;
+                    // Verificar las 8 celdas adyacentes
+                    for (let di = -1; di <= 1; di++) {
+                        for (let dj = -1; dj <= 1; dj++) {
+                            const ni = i + di;
+                            const nj = j + dj;
+                            if (ni >= 0 && ni < GRID_SIZE && nj >= 0 && nj < GRID_SIZE) {
+                                if (gameState.grid[ni][nj] === -1) {
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                    gameState.grid[i][j] = count;
+                }
+            }
+        }
+    }
+
+    function createGameGrid() {
+        const gridElement = document.getElementById('gameGrid');
+        gridElement.innerHTML = '';
+
+        for (let i = 0; i < GRID_SIZE; i++) {
+            for (let j = 0; j < GRID_SIZE; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.onclick = () => revealCell(i, j);
+                gridElement.appendChild(cell);
+            }
+        }
+    }
+
+    function makeMove() {
+        const row = parseInt(document.getElementById('rowInput').value) - 1;
+        const col = parseInt(document.getElementById('colInput').value) - 1;
+
+        if (isValidCoordinate(row, col)) {
+            revealCell(row, col);
+        } else {
+            alert('⚠️ Coordenadas inválidas. Usa números del 1 al 10.');
+        }
+    }
+
+    function isValidCoordinate(row, col) {
+        return row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE;
+    }
+
+    function revealCell(row, col) {
+        if (gameState.gameStatus !== 'playing' || gameState.revealed[row][col]) {
+            return;
+        }
+
+        // Registrar el movimiento
+        gameState.moves.push({row: row + 1, col: col + 1, timestamp: new Date()});
+
+        gameState.revealed[row][col] = true;
+        gameState.cellsRevealed++;
+
+        const cellElement = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        cellElement.classList.add('revealed');
+
+        if (gameState.grid[row][col] === -1) {
+            // Es una bomba
+            cellElement.classList.add('bomb');
+            cellElement.innerHTML = '💣';
+            gameState.attemptsLeft--;
+
+            if (gameState.attemptsLeft <= 0) {
+                gameState.gameStatus = 'lost';
+                revealAllBombs();
+            }
+        } else if (gameState.grid[row][col] === 0) {
+            // Celda vacía - expandir sin recursión
+            cellElement.classList.add('empty');
+            expandEmptyCells(row, col);
+        } else {
+            // Celda con número
+            cellElement.innerHTML = gameState.grid[row][col];
+            cellElement.classList.add(`number-${gameState.grid[row][col]}`);
+        }
+
+        checkWinCondition();
+        updateUI();
+    }
+
+    function expandEmptyCells(startRow, startCol) {
+        // Usar una cola para evitar recursión
+        const queue = [[startRow, startCol]];
+        const visited = new Set();
+
+        while (queue.length > 0) {
+            const [row, col] = queue.shift();
+            const key = `${row},${col}`;
+
+            if (visited.has(key)) continue;
+            visited.add(key);
+
+            // Revisar las 8 celdas adyacentes
+            for (let di = -1; di <= 1; di++) {
+                for (let dj = -1; dj <= 1; dj++) {
+                    const newRow = row + di;
+                    const newCol = col + dj;
+
+                    if (isValidCoordinate(newRow, newCol) && !gameState.revealed[newRow][newCol]) {
+                        gameState.revealed[newRow][newCol] = true;
+                        gameState.cellsRevealed++;
+
+                        const cellElement = document.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`);
+                        cellElement.classList.add('revealed');
+
+                        if (gameState.grid[newRow][newCol] === 0) {
+                            cellElement.classList.add('empty');
+                            queue.push([newRow, newCol]);
+                        } else if (gameState.grid[newRow][newCol] > 0) {
+                            cellElement.innerHTML = gameState.grid[newRow][newCol];
+                            cellElement.classList.add(`number-${gameState.grid[newRow][newCol]}`);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function revealAllBombs() {
+        gameState.bombs.forEach(([row, col]) => {
+            if (!gameState.revealed[row][col]) {
+                const cellElement = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                cellElement.classList.add('revealed', 'bomb');
+                cellElement.innerHTML = '💣';
+            }
+        });
+    }
+
+    function checkWinCondition() {
+        // Calcular celdas seguras reveladas
+        let safeCellsRevealed = 0;
+        for (let i = 0; i < GRID_SIZE; i++) {
+            for (let j = 0; j < GRID_SIZE; j++) {
+                if (gameState.revealed[i][j] && gameState.grid[i][j] !== -1) {
+                    safeCellsRevealed++;
+                }
+            }
+        }
+
+        if (safeCellsRevealed === TOTAL_SAFE_CELLS) {
+            gameState.gameStatus = 'won';
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('attemptsLeft').textContent = gameState.attemptsLeft;
+        document.getElementById('cellsRevealed').textContent = gameState.cellsRevealed;
+
+        const statusMessage = document.getElementById('statusMessage');
+        const exploreBtn = document.getElementById('exploreBtn');
+
+        statusMessage.className = 'status-message';
+
+        if (gameState.gameStatus === 'won') {
+            statusMessage.classList.add('status-won');
+            statusMessage.innerHTML = '🎉 ¡FELICITACIONES! 🎉<br>¡Has encontrado todo el cobre de la mina! El muki Robertico te permite llevarte el tesoro.';
+            exploreBtn.disabled = true;
+        } else if (gameState.gameStatus === 'lost') {
+            statusMessage.classList.add('status-lost');
+            statusMessage.innerHTML = '💥 ¡GAME OVER! 💥<br>Has activado demasiadas bombas. El muki Robertico no te permite llevarte nada.';
+            exploreBtn.disabled = true;
+        } else {
+            statusMessage.classList.add('status-playing');
+            if (gameState.attemptsLeft === 2) {
+                statusMessage.innerHTML = '🎮 ¡Encuentra el cobre sin activar las bombas del muki! Tienes 2 intentos de fallo.';
+            } else if (gameState.attemptsLeft === 1) {
+                statusMessage.innerHTML = '⚠️ ¡CUIDADO! Solo te queda 1 intento. La próxima bomba será fatal.';
+            }
+            exploreBtn.disabled = false;
+        }
+    }
+
+    function resetGame() {
+        initializeGame();
+    }
+
+    // Inicializar el juego al cargar la página
+    window.onload = function() {
+        initializeGame();
+    };
+
+    // Permitir envío con Enter
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && gameState.gameStatus === 'playing') {
+            makeMove();
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,11 +1,28 @@
 package com.example.l10_20211049.service;
 
+import com.example.l10_20211049.entity.Configuracion;
+import com.example.l10_20211049.entity.Movimiento;
+import com.example.l10_20211049.repository.ConfiguracionRepository;
+import com.example.l10_20211049.repository.MovimientoRepository;
+import com.example.l10_20211049.repository.PosicionBombaRepository;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
 public class BuscaminasService {
 
-    @Autowired private ConfiguracionRepository configuracionRepo;
-    @Autowired private PosicionBombaRepository bombaRepo;
-    @Autowired private MovimientoRepository movimientoRepo;
+    @Autowired
+    private ConfiguracionRepository configuracionRepo;
+    @Autowired
+    private PosicionBombaRepository bombaRepo;
+    @Autowired
+    private MovimientoRepository movimientoRepo;
 
     private Set<String> bombas;
     private int errores = 0;
