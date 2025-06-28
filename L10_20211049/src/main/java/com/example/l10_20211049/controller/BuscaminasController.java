@@ -23,6 +23,7 @@ public class BuscaminasController {
         return "buscaminas";
     }
 
+
     @PostMapping("/buscaminas/jugar")
     public String jugar(@RequestParam int fila, @RequestParam int columna) {
         service.guardarMovimiento(fila, columna);

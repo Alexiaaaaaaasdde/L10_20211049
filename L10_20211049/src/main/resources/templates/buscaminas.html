@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>El Tesoro del Muki</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        td {
+            width: 45px;
+            height: 45px;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 20px;
+        }
+
+        .descubierto {
+            background-color: #d0f0c0;
+        }
+
+        .bomba1 {
+            background-color: yellow;
+        }
+
+        .bomba2 {
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<h1>💣 El Tesoro del Muki 💣</h1>
+
+<!-- Mostrar mensaje de pérdida -->
+<div th:if="${perdio}">
+    <h2 style="color:red">💥 ¡Perdiste! 💥</h2>
+    <form th:action="@{/buscaminas/reiniciar}" method="post">
+        <button type="submit">🔁 Reiniciar</button>
+    </form>
+</div>
+
+<!-- Mostrar mensaje de victoria -->
+<div th:if="${gano}">
+    <h2 style="color:green">🏆 ¡Ganaste! 🏆</h2>
+    <form th:action="@{/buscaminas/reiniciar}" method="post">
+        <button type="submit">🔁 Jugar otra vez</button>
+    </form>
+</div>
+
+<!-- TABLERO DEL JUEGO -->
+<table>
+    <tr th:each="fila, fi : ${tablero}">
+        <td th:each="celda, ci : ${fila}">
+            <!-- Si la celda ya fue descubierta -->
+            <div th:if="${celda != null}">
+                <div th:switch="${celda}">
+                    <span th:case="'⚠️'" class="bomba1" th:text="${celda}">⚠️</span>
+                    <span th:case="'💥'" class="bomba2" th:text="${celda}">💥</span>
+                    <span th:case="*" class="descubierto" th:text="${celda}">0</span>
+                </div>
+            </div>
+
+            <!-- Si la celda aún está oculta -->
+            <form th:if="${celda == null and !perdio and !gano}"
+                  th:action="@{/buscaminas/jugar}" method="post">
+                <input type="hidden" name="fila" th:value="${fi.index}" />
+                <input type="hidden" name="columna" th:value="${ci.index}" />
+                <button type="submit" style="width:100%; height:100%;">❓</button>
+            </form>
+        </td>
+    </tr>
+</table>
+
+<!-- OPCIONAL: ingresar coordenadas manualmente -->
+<div th:if="${!perdio and !gano}">
+    <form th:action="@{/buscaminas/jugar}" method="post" style="margin-top:20px;">
+        <label>Fila:
+            <input type="number" name="fila" required min="0" />
+        </label>
+        <label>Columna:
+            <input type="number" name="columna" required min="0" />
+        </label>
+        <button type="submit">Explorar 🔍</button>
+    </form>
+</div>
+
+</body>
+</html>
