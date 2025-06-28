@@ -7,32 +7,45 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/buscaminas")
 public class BuscaminasController {
 
     @Autowired
-    private BuscaminasService service;
+    private BuscaminasService buscaminasService;
 
-    @GetMapping("/buscaminas")
-    public String verTablero(Model model) {
-        String[][] tablero = service.generarTablero();
+    @GetMapping("")
+    public String mostrarJuego(Model model) {
+        // Generar el tablero actual
+        String[][] tablero = buscaminasService.generarTablero();
+
+        // Verificar estado del juego
+        boolean perdio = buscaminasService.juegoPerdido();
+        boolean gano = buscaminasService.juegoGanado();
+
+        // Agregar atributos al modelo
         model.addAttribute("tablero", tablero);
-        model.addAttribute("perdio", service.juegoPerdido());
-        model.addAttribute("gano", service.juegoGanado());
+        model.addAttribute("perdio", perdio);
+        model.addAttribute("gano", gano);
+
         return "buscaminas";
     }
 
-
-    @PostMapping("/buscaminas/jugar")
+    @PostMapping("/jugar")
     public String jugar(@RequestParam int fila, @RequestParam int columna) {
-        service.guardarMovimiento(fila, columna);
+        // Verificar que el juego no haya terminado
+        if (!buscaminasService.juegoPerdido() && !buscaminasService.juegoGanado()) {
+            buscaminasService.guardarMovimiento(fila, columna);
+        }
+
         return "redirect:/buscaminas";
     }
 
-    @PostMapping("/buscaminas/reiniciar")
+    @PostMapping("/reiniciar")
     public String reiniciar() {
-        service.reiniciarJuego();
+        buscaminasService.reiniciarJuego();
         return "redirect:/buscaminas";
     }
 }
